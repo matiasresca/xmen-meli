@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	countMinLetter           = 4
 	lettersAvaible           = []byte{'A', 'T', 'C', 'G'}
 	checkTypeHorizonal       = "horizontal"
 	checkTypeVertical        = "vertical"
@@ -29,12 +30,13 @@ func NewService(repo ports.HumanRepository) ports.HumanService {
 
 func (s *service) GetStats() (*domain.Stats, error) {
 	stats := domain.Stats{}
-	//Busco si fue procesado anteriormente.-
+	//Obtengo todos los humanos verificados.-
 	humans, err := s.repo.GetAll()
 	if err != nil {
 		fmt.Println(err)
 		return &stats, err
 	}
+	//Se recorren los humanos y se generan las estadisticas.-
 	for _, human := range humans {
 		if human.IsMutant {
 			stats.CountMutantDna++
@@ -97,7 +99,7 @@ func (s *service) CheckMutant(dna []string) (bool, error) {
 func (s *service) isMutant(dna []string) bool {
 	//Algoritmo para validar si es mutante.-
 	//Cantidad minima de caracteres consecutivos.-
-	countDna := 4
+	countDna := countMinLetter
 	//Armo matriz de ADN.-
 	sizeTable := len(dna)
 	var matriz [][]string
