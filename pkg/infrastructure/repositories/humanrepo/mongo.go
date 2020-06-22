@@ -2,11 +2,12 @@ package humanrepo
 
 import (
 	"context"
+	"log"
+	"sync"
+
 	"github.com/matiasresca/xmen-meli/pkg/core/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"sync"
 )
 
 var (

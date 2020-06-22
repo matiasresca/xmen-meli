@@ -28,13 +28,13 @@ func NewService(repo ports.HumanRepository) ports.HumanService {
 }
 
 func (s *service) GetStats() (*domain.Stats, error) {
+	stats := domain.Stats{}
 	//Busco si fue procesado anteriormente.-
 	humans, err := s.repo.GetAll()
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return &stats, err
 	}
-	stats := domain.Stats{}
 	for _, human := range humans {
 		if human.IsMutant {
 			stats.CountMutantDna++
@@ -73,11 +73,6 @@ func (s *service) CheckMutant(dna []string) (bool, error) {
 			}
 		}
 	}
-	//Verifico si es mutante.-
-	return s.isMutant(dna), nil
-}
-
-func (s *service) isMutant(dna []string) bool {
 	//Busco si fue procesado anteriormente.-
 	human, err := s.repo.GetByDna(dna)
 	if err != nil {
@@ -85,8 +80,21 @@ func (s *service) isMutant(dna []string) bool {
 	}
 	//Si ya fue procesado, devuelvo el valor seteado en el registro.-
 	if human != nil {
-		return human.IsMutant
+		return human.IsMutant, nil
 	}
+
+	//Verifico si es mutante.-
+	isMutant := s.isMutant(dna)
+
+	//Guardo el DNA procesado.-
+	err = s.repo.Save(domain.Human{Dna: dna, IsMutant: isMutant})
+	if err != nil {
+		panic(err)
+	}
+	return isMutant, nil
+}
+
+func (s *service) isMutant(dna []string) bool {
 	//Algoritmo para validar si es mutante.-
 	//Cantidad minima de caracteres consecutivos.-
 	countDna := 4
@@ -116,11 +124,6 @@ func (s *service) isMutant(dna []string) bool {
 		if result {
 			break
 		}
-	}
-	//Guardo el DNA procesado.-
-	err = s.repo.Save(domain.Human{Dna: dna, IsMutant: result})
-	if err != nil {
-		panic(err)
 	}
 	return result
 }

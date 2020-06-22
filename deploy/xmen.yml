@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: xmen-meli
+  labels:
+    app: xmen-meli
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: xmen-meli
+  template:
+    metadata:
+      labels:
+        app: xmen-meli
+    spec:
+      containers:
+        - name: xmen-meli
+          image: matiasresca/xmen-meli:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 8080
+          env:
+            - name: MONGO_HOST
+              value: "mongo"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xmen-meli
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+      targetPort: 8080
+  selector:
+    app: xmen-meli
