@@ -17,9 +17,10 @@ spec:
       containers:
         - name: xmen-meli
           image: matiasresca/xmen-meli:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - name: web-backend
+              containerPort: 8080
           env:
             - name: MONGO_HOST
               value: "mongo"
@@ -29,9 +30,11 @@ kind: Service
 metadata:
   name: xmen-meli
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
-    - port: 8080
+    - protocol: TCP
+      name: web-backend
+      port: 80
       targetPort: 8080
   selector:
     app: xmen-meli
